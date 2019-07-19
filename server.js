@@ -177,7 +177,7 @@ Weather.lookup = function (handler) {
 
 // Static Method: Fetch a location from the weather API
 Weather.fetch = function (location) {
-  const url = `https://api.darksky.net/forecast/${process.env.WEATHER_API_KEY}/${location.latitude},${location.longitude}`;
+  const url = `https://api.darksky.net/forecast/${process.env.DARKSKY_API_KEY}/${location.latitude},${location.longitude}`;
 
   return superagent.get(url)
     .then(result => {
