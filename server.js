@@ -30,7 +30,7 @@ app.get('/weather', getWeather);
 
 app.get('/yelp', getYelp);
 
-// app.get('/events', getData);
+app.get('/events', getEvent);
 
 // app.get('/movies', getData);
 
@@ -267,25 +267,7 @@ Yelp.fetch = function (location) {
 
 // ---------- EVENTS ------------- //
 
-
-function getEvents(request, response) {
-  const url = `https://www.eventbriteapi.com/v3/events/search?location.latitude=${request.query.data.latitude}&location.longitude=${request.query.data.longitude}&token=${process.env.EVENTBRITE_API_KEY}`
-
-  return superagent.get(url)
-    .then(res => {
-      const eventEntries = res.body.events.map(eventObj => {
-        return new Event(eventObj);
-      })
-      response.send(eventEntries);
-    })
-    .catch(err => {
-      response.send(err);
-    });
-}
-
-
-
-
+// events constructor///////
 
 function Event(eventObj) {
   this.link = eventObj.url;
@@ -293,6 +275,71 @@ function Event(eventObj) {
   this.event_date = Date(eventObj.start.local).split(' ').slice(0, 4).join(' ');
   this.summary = eventObj.summary;
 }
+
+// route handler
+function getEvent(request, response) {
+  const handler = {
+
+    location: request.query.data,
+
+    cacheHit: function (result) {
+      response.send(result.rows);
+    },
+
+    cacheMiss: function () {
+      Yelp.fetch(request.query.data)
+        .then(results => response.send(results))
+        .catch(console.error);
+    },
+  };
+
+  Event.lookup(handler);
+}
+
+// instance method: save to db//
+
+Event.prototype.save = function (id) {
+  const SQL = `INSERT INTO events (link, name, event_date, summary, location_id) VALUES ($1, $2, $3, $4, 5$);`;
+  const values = Object.values(this);
+  values.push(id);
+  client.query(SQL, values);
+};
+
+Event.lookup = function (handler) {
+  const SQL = `SELECT * FROM events WHERE location_id=$1;`;
+  client.query(SQL, [handler.location.id])
+    .then(result => {
+      if (result.rowCount > 0) {
+        console.log('Got data from SQL');
+        handler.cacheHit(result);
+      } else {
+        console.log('Got data from API');
+        handler.cacheMiss();
+      }
+    })
+    .catch(error => handleError(error));
+};
+
+
+Event.fetch = function (location) {
+  const url = `https://api.darksky.net/forecast/${DARKSKY_API_KEY}/${location.latitude},${location.longitude}`;
+
+  return superagent.get(url)
+    .then(result => {
+      console.log('STARDATE2060', result.body.businesses[0].name);
+      const events = result.body.events.map (event => {
+        const newEvent = new Event(event);
+        newEvent.save(location.id);
+        return newEvent;
+      });
+      return events;
+    });
+};
+
+
+
+
+
 
 function Movie(eventObj) {
   this.title = eventObj.url;
