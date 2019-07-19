@@ -23,7 +23,7 @@ CREATE TABLE yelps (
     name VARCHAR(255), 
     url VARCHAR(255), 
     image_url VARCHAR(255), 
-    rating NUMERIC, 
+    rating NUMERIC(10, 1), 
     price VARCHAR(255), 
     location_id INTEGER NOT NULL,
     FOREIGN KEY (location_id) REFERENCES locations (id)

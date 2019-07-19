@@ -288,7 +288,7 @@ function getEvent(request, response) {
     },
 
     cacheMiss: function () {
-      Yelp.fetch(request.query.data)
+      Event.fetch(request.query.data)
         .then(results => response.send(results))
         .catch(console.error);
     },
@@ -323,13 +323,12 @@ Event.lookup = function (handler) {
 
 
 Event.fetch = function (location) {
-  const url = `https://api.darksky.net/forecast/${process.env.EVENTBRITE_API_KEY}/${location.latitude},${location.longitude}`;
+  const url = `https://www.eventbriteapi.com/v3/events/search?token=${process.env.EVENTBRITE_API_KEY}&location.address=${request.query.data.formatted_query}`;
 
   return superagent.get(url)
     .then(result => {
-      // console.log('STARDATE2060', result.body.businesses[0].name);
-      const events = result.body.events.map (eventObj => {
-        const newEvent = new Event(eventObj);
+      const events = result.body.events.map (eventData => {
+        const newEvent = new Event(eventData);
         newEvent.save(location.id);
         return newEvent;
       });
@@ -342,28 +341,28 @@ Event.fetch = function (location) {
 
 
 
-function Movie(eventObj) {
-  this.title = eventObj.url;
-  this.image_url = eventObj.name.text;
-  this.overview = Date(eventObj.start.local).split(' ').slice(0, 4).join(' ');
-  this.released_on = eventObj.summary;
-  this.total_votes = eventObj.summary;
-  this.average_votes = eventObj.summary;
-  this.popularity = eventObj.summary;
-}
+// function Movie(eventObj) {
+//   this.title = eventObj.url;
+//   this.image_url = eventObj.name.text;
+//   this.overview = Date(eventObj.start.local).split(' ').slice(0, 4).join(' ');
+//   this.released_on = eventObj.summary;
+//   this.total_votes = eventObj.summary;
+//   this.average_votes = eventObj.summary;
+//   this.popularity = eventObj.summary;
+// }
 
-function Trail(eventObj) {
-  this.name = eventObj.url;
-  this.trail_url = eventObj.name.text;
-  this.location = Date(eventObj.start.local).split(' ').slice(0, 4).join(' ');
-  this.length = eventObj.summary;
-  this.conditions = eventObj.summary;
-  this.star_votes = eventObj.summary;
-  this.condition_time = eventObj.summary;
-  this.stars = eventObj.summary;
-  this.condition_date = eventObj.summary;
-  this.summary = eventObj.summary;
-}
+// function Trail(eventObj) {
+//   this.name = eventObj.url;
+//   this.trail_url = eventObj.name.text;
+//   this.location = Date(eventObj.start.local).split(' ').slice(0, 4).join(' ');
+//   this.length = eventObj.summary;
+//   this.conditions = eventObj.summary;
+//   this.star_votes = eventObj.summary;
+//   this.condition_time = eventObj.summary;
+//   this.stars = eventObj.summary;
+//   this.condition_date = eventObj.summary;
+//   this.summary = eventObj.summary;
+// }
 
 
 
