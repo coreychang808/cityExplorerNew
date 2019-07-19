@@ -323,7 +323,7 @@ Event.lookup = function (handler) {
 
 
 Event.fetch = function (location) {
-  const url = `https://api.darksky.net/forecast/${DARKSKY_API_KEY}/${location.latitude},${location.longitude}`;
+  const url = `https://api.darksky.net/forecast/${EVENTBRITE_API_KEY}/${location.latitude},${location.longitude}`;
 
   return superagent.get(url)
     .then(result => {
