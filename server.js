@@ -276,6 +276,7 @@ function Event(eventObj) {
   this.summary = eventObj.summary;
 }
 
+
 // route handler
 function getEvent(request, response) {
   const handler = {
@@ -326,9 +327,9 @@ Event.fetch = function (location) {
 
   return superagent.get(url)
     .then(result => {
-      console.log('STARDATE2060', result.body.businesses[0].name);
-      const events = result.body.events.map (event => {
-        const newEvent = new Event(event);
+      // console.log('STARDATE2060', result.body.businesses[0].name);
+      const events = result.body.events.map (eventObj => {
+        const newEvent = new Event(eventObj);
         newEvent.save(location.id);
         return newEvent;
       });
